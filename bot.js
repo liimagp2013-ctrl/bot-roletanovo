@@ -9,7 +9,7 @@ app.use(express.static('.')); // Serve a página index.html
 // CONFIGURAÇÕES DO TELEGRAM
 // ==========================================
 const TELEGRAM_TOKEN = '8719989527:AAFVbj9_GmVnqt8uRb3kpph2rvoqJZIeH-U';
-const TELEGRAM_CHAT_ID = '5002657384';
+const TELEGRAM_CHAT_ID = '-1002569332722'
 
 async function sendTelegramMessage(text) {
   if (!TELEGRAM_TOKEN || TELEGRAM_TOKEN.includes('SEU_TELEGRAM')) return;
