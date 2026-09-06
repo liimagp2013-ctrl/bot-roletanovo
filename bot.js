@@ -6,7 +6,7 @@ const app = express();
 app.use(bodyParser.json());
 
 // Suas credenciais do Telegram
-const TELEGRAM_TOKEN = '8719989527:AAEZG3I5jA0r8d7sW6vK0z9L2X4M1P3Q5R8'; // Insira o token completo fornecido pelo BotFather caso tenha alterado
+const TELEGRAM_TOKEN = 8719989527:AAEybvppfDxoJzVY0W12Co4LwWBPznBzock // Insira o token completo fornecido pelo BotFather caso tenha alterado
 const CHAT_ID = '-1002569332722';
 const PORT = process.env.PORT || 3000;
 
