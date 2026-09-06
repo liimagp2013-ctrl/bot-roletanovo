@@ -1,5 +1,5 @@
 const express = require('express');
-const fetch = require('node-fetch');
+const https = require('https');
 const app = express();
 
 app.use(express.json());
@@ -59,24 +59,37 @@ function checkPair(n1, n2) {
   return null;
 }
 
-async function sendTelegramMessage(text) {
-  try {
-    const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
-    await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        chat_id: TELEGRAM_CHAT_ID,
-        text: text,
-        parse_mode: 'HTML'
-      })
-    });
-  } catch (err) {
-    console.error('Erro ao enviar Telegram:', err);
-  }
+function sendTelegramMessage(text) {
+  const data = JSON.stringify({
+    chat_id: TELEGRAM_CHAT_ID,
+    text: text,
+    parse_mode: 'HTML'
+  });
+
+  const options = {
+    hostname: 'api.telegram.org',
+    port: 443,
+    path: `/bot${TELEGRAM_TOKEN}/sendMessage`,
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Content-Length': Buffer.byteLength(data)
+    }
+  };
+
+  const req = https.request(options, (res) => {
+    res.on('data', () => {});
+  });
+
+  req.on('error', (e) => {
+    console.error('Erro Telegram:', e);
+  });
+
+  req.write(data);
+  req.end();
 }
 
-app.post('/webhook', async (req, res) => {
+app.post('/webhook', (req, res) => {
   const { number } = req.body;
   if (number === undefined) {
     return res.status(400).json({ error: 'Número inválido' });
@@ -99,7 +112,7 @@ app.post('/webhook', async (req, res) => {
                       `Entrar nos vizinhos de <b>${last}</b>: [${neighborsLast.join(', ')}]\n` +
                       `E vizinhos de <b>${prev}</b>: [${neighborsPrev.join(', ')}]`;
 
-      await sendTelegramMessage(message);
+      sendTelegramMessage(message);
     }
   }
 
@@ -110,4 +123,3 @@ const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);
 });
-        
