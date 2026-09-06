@@ -3,8 +3,8 @@ const app = express();
 app.use(express.json());
 
 // CONFIGURAÇÃO DO TELEGRAM
-const TELEGRAM_TOKEN = 'SEU_TOKEN_DO_TELEGRAM_AQUI';
-const TELEGRAM_CHAT_ID = 'SEU_CHAT_ID_AQUI';
+const TELEGRAM_TOKEN = '8719989527:AAFVbj9_GmVnqt8uRb3kpph2rvoqJZIeH-U';
+const TELEGRAM_CHAT_ID = '-1002569332722';
 
 // DADOS DE REFERÊNCIA DA ROLETA (Extraídos da sua lógica)
 const WHEEL = [0,32,15,19,4,21,2,25,17,34,6,27,13,36,11,30,8,23,10,5,24,16,33,1,20,14,31,9,22,18,29,7,28,12,35,3,26];
