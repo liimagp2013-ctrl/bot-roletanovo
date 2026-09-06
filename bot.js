@@ -2,6 +2,9 @@ const express = require('express');
 const app = express();
 app.use(express.json());
 app.use(express.static(__dirname));
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + '/index.html');
+});
 
 // CONFIGURAÇÃO DO TELEGRAM
 const TELEGRAM_TOKEN = '8719989527:AAFVbj9_GmVnqt8uRb3kpph2rvoqJZIeH-U';
