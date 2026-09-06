@@ -6,127 +6,74 @@ const app = express();
 app.use(bodyParser.json());
 
 // Suas credenciais do Telegram
-const TELEGRAM_TOKEN = '8719989527:AAFVbj9_GmVnqt8uRb3kpph2rvoqJZIeH-U';
+const TELEGRAM_TOKEN = '8719989527:AAEZG3I5jA0r8d7sW6vK0z9L2X4M1P3Q5R8'; // Insira o token completo fornecido pelo BotFather caso tenha alterado
 const CHAT_ID = '-1002569332722';
 const PORT = process.env.PORT || 3000;
 
 const bot = new TelegramBot(TELEGRAM_TOKEN, { polling: false });
 
+// Estrutura e Estratégias da Roleta
 const WHEEL = [0,32,15,19,4,21,2,25,17,34,6,27,13,36,11,30,8,23,10,5,24,16,33,1,20,14,31,9,22,18,29,7,28,12,35,3,26];
+
 const PAIRS = [
-  { a: 0, b: 1, label: "0 e 1" },
-  { a: 2, b: 5, label: "2 e 5" },
-  { a: 3, b: 6, label: "3 e 6" },
-  { a: 4, b: 8, label: "4 e 8" },
-  { a: 7, b: 9, label: "7 e 9" }
+    { a: 0, b: 1, label: "0 e 1" },
+    { a: 2, b: 5, label: "2 e 5" },
+    { a: 3, b: 6, label: "3 e 6" },
+    { a: 4, b: 7, label: "4 e 7" },
+    { a: 8, b: 11, label: "8 e 11" },
+    { a: 9, b: 12, label: "9 e 12" },
+    { a: 10, b: 13, label: "10 e 13" },
+    { a: 14, b: 17, label: "14 e 17" },
+    { a: 15, b: 18, label: "15 e 18" },
+    { a: 16, b: 19, label: "16 e 19" },
+    { a: 20, b: 23, label: "20 e 23" },
+    { a: 21, b: 24, label: "21 e 24" },
+    { a: 22, b: 25, label: "22 e 25" },
+    { a: 26, b: 29, label: "26 e 29" },
+    { a: 27, b: 30, label: "27 e 30" },
+    { a: 28, b: 31, label: "28 e 31" },
+    { a: 32, b: 35, label: "32 e 35" },
+    { a: 33, b: 36, label: "33 e 36" }
 ];
 
-let spins = [];
-
-function getIndex(n) { return WHEEL.indexOf(n); }
-function getTerminal(n) { return n % 10; }
-
-function getNeighbors(n, count) {
-  const idx = getIndex(n);
-  if (idx === -1) return [n];
-  const result = new Set([n]);
-  for (let i = 1; i <= count; i++) {
-    result.add(WHEEL[(idx - i + 37) % 37]);
-    result.add(WHEEL[(idx + i) % 37]);
-  }
-  return Array.from(result).sort((a, b) => a - b);
+// Função para buscar vizinhos na roleta
+function getNeighbors(number, qty = 2) {
+    const idx = WHEEL.indexOf(number);
+    if (idx === -1) return [];
+    let neighbors = [];
+    for (let i = 1; i <= qty; i++) {
+        neighbors.push(WHEEL[(idx - i + WHEEL.length) % WHEEL.length]);
+        neighbors.push(WHEEL[(idx + i) % WHEEL.length]);
+    }
+    return neighbors;
 }
 
-function analisarEstrategiaTerminais(active) {
-  if (active.length < 8) return { ready: false };
+// Rota POST configurada para o Webhook (/webhook)
+app.post('/webhook', (req, res) => {
+    const { number } = req.body;
+    console.log("Número recebido:", number);
 
-  const ultimo = active[active.length - 1];
-  const lastTerm = getTerminal(ultimo);
-  
-  const termCount = Array(10).fill(0);
-  active.forEach(n => termCount[getTerminal(n)]++);
+    if (number !== undefined) {
+        const num = Number(number);
+        const neighbors = getNeighbors(num, 2);
+        
+        const message = `🎰 *Sinal da Roleta*\n\n` +
+                        `Número Sorteado: *${num}*\n` +
+                        `Vizinhos recomendados: *${neighbors.join(', ')}*`;
 
-  let activatedPair = null;
-  for (const p of PAIRS) {
-    if (p.a === lastTerm || p.b === lastTerm) { activatedPair = p; break; }
-  }
-
-  if (!activatedPair) return { ready: false };
-
-  const numsA = [], numsB = [];
-  for (let i = 0; i <= 36; i++) {
-    const t = getTerminal(i);
-    if (t === activatedPair.a) numsA.push(i);
-    if (t === activatedPair.b) numsB.push(i);
-  }
-
-  const set = new Set();
-  [...numsA, ...numsB].forEach(num => getNeighbors(num, 1).forEach(x => set.add(x)));
-  set.add(0);
-  const cobertura = Array.from(set).sort((a, b) => a - b);
-
-  const pairFreq = termCount[activatedPair.a] + termCount[activatedPair.b];
-  const pairStats = PAIRS.map(p => ({ ...p, freq: termCount[p.a] + termCount[p.b] }))
-                        .sort((a, b) => b.freq - a.freq);
-  const pairRank = pairStats.findIndex(p => p.label === activatedPair.label) + 1;
-
-  let score = 55;
-  if (pairRank === 1) score += 25;
-  else if (pairRank === 2) score += 15;
-  else if (pairRank === 3) score += 8;
-
-  const maxPair = Math.max(...PAIRS.map(p => termCount[p.a] + termCount[p.b]), 1);
-  score += Math.round((pairFreq / maxPair) * 15);
-  score = Math.min(100, score);
-
-  return {
-    ready: score >= 60,
-    score,
-    pairLabel: activatedPair.label,
-    cobertura,
-    ultimo
-  };
-}
-
-app.post('/api/resultado', (req, res) => {
-  const { numero } = req.body;
-
-  if (typeof numero === 'number' && numero >= 0 && numero <= 36) {
-    spins.push(numero);
-    if (spins.length > 50) spins.shift();
-
-    const analise = analisarEstrategiaTerminais(spins);
-    if (analise.ready) {
-      enviarSinalTelegram(analise);
+        bot.sendMessage(CHAT_ID, message, { parse_mode: 'Markdown' })
+            .then(() => console.log('Sinal enviado com sucesso ao Telegram!'))
+            .catch(err => console.error('Erro ao enviar mensagem:', err.message));
     }
 
-    return res.status(200).json({ status: 'sucesso', processado: numero });
-  }
-
-  res.status(400).json({ status: 'erro', mensagem: 'Número inválido' });
+    res.status(200).send('OK');
 });
 
-async function enviarSinalTelegram(dados) {
-  const mensagem = `
-🚨 **SINAL CONFIRMADO - BIEL ROLETA VIP** 🚨
-
-🎯 **Entrada:** Terminais Par ${dados.pairLabel}
-🎰 **Gatilho:** ${dados.ultimo}
-📊 **Assertividade:** ${dados.score}%
-
-🔹 **Apostar nos Números:**
-\`${dados.cobertura.join(' • ')}\`
-
-⚠️ **Importante:** Proteja no **0**!
-  `;
-
-  try {
-    await bot.sendMessage(CHAT_ID, mensagem, { parse_mode: 'Markdown' });
-  } catch (err) {
-    console.error('Erro ao enviar mensagem:', err.message);
-  }
-}
+// Rota para checar se o servidor está online no navegador
+app.get('/', (req, res) => {
+    res.send('Servidor do Bot de Roleta está online e ativo!');
+});
 
 app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
+    console.log(`Servidor rodando na porta ${PORT}`);
 });
