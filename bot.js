@@ -8,8 +8,8 @@ app.use(express.static('.')); // Serve a página index.html
 // ==========================================
 // CONFIGURAÇÕES DO TELEGRAM
 // ==========================================
-const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN || 'SEU_TELEGRAM_TOKEN_AQUI';
-const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID || 'SEU_CHAT_ID_AQUI';
+const TELEGRAM_TOKEN = 'SEU_TOKEN_DO_BOTFATHER_AQUI';
+const TELEGRAM_CHAT_ID = '5002657384';
 
 async function sendTelegramMessage(text) {
   if (!TELEGRAM_TOKEN || TELEGRAM_TOKEN.includes('SEU_TELEGRAM')) return;
