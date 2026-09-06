@@ -8,7 +8,7 @@ app.use(express.static('.')); // Serve a página index.html
 // ==========================================
 // CONFIGURAÇÕES DO TELEGRAM
 // ==========================================
-const TELEGRAM_TOKEN = 'SEU_TOKEN_DO_BOTFATHER_AQUI';
+const TELEGRAM_TOKEN = '8719989527:AAFVbj9_GmVnqt8uRb3kpph2rvoqJZIeH-U';
 const TELEGRAM_CHAT_ID = '5002657384';
 
 async function sendTelegramMessage(text) {
