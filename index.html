@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel de Controle - Roleta</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #121212; color: #fff; text-align: center; margin: 0; padding: 15px; }
+    h2 { color: #00ff88; margin-bottom: 5px; }
+    p { font-size: 14px; color: #aaa; }
+    .grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; max-width: 400px; margin: 15px auto; }
+    button { padding: 15px 0; font-size: 18px; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; color: white; }
+    .green { background-color: #00875a; grid-column: span 6; }
+    .red { background-color: #de350b; }
+    .black { background-color: #253858; }
+    #log { margin-top: 15px; font-size: 14px; color: #00e676; min-height: 20px; }
+  </style>
+</head>
+<body>
+
+  <h2>Painel de Entrada</h2>
+  <p>Toque no número que saiu na Immersive Roulette</p>
+
+  <div class="grid">
+    <button class="green" onclick="sendNumber(0)">0</button>
+    <button class="red" onclick="sendNumber(1)">1</button>
+    <button class="black" onclick="sendNumber(2)">2</button>
+    <button class="red" onclick="sendNumber(3)">3</button>
+    <button class="black" onclick="sendNumber(4)">4</button>
+    <button class="red" onclick="sendNumber(5)">5</button>
+    <button class="black" onclick="sendNumber(6)">6</button>
+    <button class="red" onclick="sendNumber(7)">7</button>
+    <button class="black" onclick="sendNumber(8)">8</button>
+    <button class="red" onclick="sendNumber(9)">9</button>
+    <button class="black" onclick="sendNumber(10)">10</button>
+    <button class="black" onclick="sendNumber(11)">11</button>
+    <button class="red" onclick="sendNumber(12)">12</button>
+    <button class="black" onclick="sendNumber(13)">13</button>
+    <button class="red" onclick="sendNumber(14)">14</button>
+    <button class="black" onclick="sendNumber(15)">15</button>
+    <button class="red" onclick="sendNumber(16)">16</button>
+    <button class="black" onclick="sendNumber(17)">17</button>
+    <button class="red" onclick="sendNumber(18)">18</button>
+    <button class="red" onclick="sendNumber(19)">19</button>
+    <button class="black" onclick="sendNumber(20)">20</button>
+    <button class="red" onclick="sendNumber(21)">21</button>
+    <button class="black" onclick="sendNumber(22)">22</button>
+    <button class="red" onclick="sendNumber(23)">23</button>
+    <button class="black" onclick="sendNumber(24)">24</button>
+    <button class="red" onclick="sendNumber(25)">25</button>
+    <button class="black" onclick="sendNumber(26)">26</button>
+    <button class="red" onclick="sendNumber(27)">27</button>
+    <button class="black" onclick="sendNumber(28)">28</button>
+    <button class="black" onclick="sendNumber(29)">29</button>
+    <button class="red" onclick="sendNumber(30)">30</button>
+    <button class="black" onclick="sendNumber(31)">31</button>
+    <button class="red" onclick="sendNumber(32)">32</button>
+    <button class="black" onclick="sendNumber(33)">33</button>
+    <button class="red" onclick="sendNumber(34)">34</button>
+    <button class="black" onclick="sendNumber(35)">35</button>
+    <button class="red" onclick="sendNumber(36)">36</button>
+  </div>
+
+  <div id="log"></div>
+
+  <script>
+    const RENDER_URL = 'https://bot-roletanovo.onrender.com/webhook';
+
+    async function sendNumber(num) {
+      document.getElementById('log').innerText = `Enviando número ${num}...`;
+      try {
+        const response = await fetch(RENDER_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ number: num })
+        });
+        const data = await response.json();
+        document.getElementById('log').innerText = `Número ${num} enviado! Total no histórico: ${data.totalSpins}`;
+      } catch (err) {
+        document.getElementById('log').innerText = 'Erro ao enviar número. Confira a conexão.';
+      }
+    }
+  </script>
+</body>
+  </html>
+  
